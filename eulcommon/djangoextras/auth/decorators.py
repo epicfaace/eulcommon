@@ -40,7 +40,7 @@ def user_passes_test_with_403(test_func, login_url=None):
         def _checklogin(request, *args, **kwargs):
             if test_func(request.user):
                 return view_func(request, *args, **kwargs)
-            elif not request.user.is_authenticated():
+            elif not (request.user.is_authenticated() if callable(request.user.is_authenticated) else request.user.is_authenticated):
                 return HttpResponseRedirect('%s?%s=%s' % (login_url,
                             REDIRECT_FIELD_NAME, urlquote(request.get_full_path())))
             else:
@@ -125,7 +125,7 @@ def login_required_with_ajax(function=None, redirect_field_name=REDIRECT_FIELD_N
     # NOTE: currently only this format works: @login_required_with_ajax()
     # But this format errors: @login_required_with_ajax
     if function is None:
-        function = lambda u: u.is_authenticated()
+        function = lambda u: u.is_authenticated() if callable(u.is_authenticated) else u.is_authenticated
     return user_passes_test_with_ajax(function, redirect_field_name=redirect_field_name)
 
 
